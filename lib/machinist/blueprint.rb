@@ -9,16 +9,17 @@ module Machinist
     # for a blueprint.  In the latter case, make will walk up the superclass
     # chain looking for blueprints to apply.
     def initialize(klass, options = {}, &block)
-      @klass  = klass
-      @parent = options[:parent]
-      @block  = block
+      @klass    = klass
+      @parent   = options[:parent]
+      @strategy = options[:strategy] || NormalStrategy
+      @block    = block
     end
 
     attr_reader :klass, :parent, :block
 
     # FIXME: Docs!
     def make(attributes = {})
-      lathe = lathe_class.new(@klass, new_serial_number, attributes)
+      lathe = lathe_class.new(@klass, @strategy, new_serial_number, attributes)
 
       lathe.instance_eval(&@block)
       each_ancestor {|blueprint| lathe.instance_eval(&blueprint.block) }
