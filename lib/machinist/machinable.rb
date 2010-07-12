@@ -1,6 +1,6 @@
 module Machinist
 
-  # Machinist extends classes with this module to define the `blueprint` and `make` methods.
+  # Extend classes with this module to define the blueprint and make methods.
   module Machinable
     # Define a blueprint with the given name for this class.
     #
@@ -26,10 +26,10 @@ module Machinist
       @blueprints[name]
     end
 
+    # Construct an object from a blueprint.
+    #
     # :call-seq:
     #   make([count], [blueprint_name], [attributes = {}])
-    #
-    # Construct an object from a blueprint. All arguments are optional.
     #
     # [+count+]
     #   The number of objects to construct. If +count+ is provided, make
@@ -47,13 +47,20 @@ module Machinist
 
     # Construct and save an object from a blueprint, if the class allows saving.
     #
-    # A matching object will be returned from the shop if possible. See
+    # :call-seq:
+    #   make!([count], [blueprint_name], [attributes = {}])
+    #
+    # A cached object will be returned from the shop if possible. See
     # Machinist::Shop.
     #
     # Arguments are the same as for make.
     def make!(*args)
       decode_args_to_make(*args) do |blueprint, attributes|
-        Shop.instance.buy(blueprint, attributes)
+        if Machinist.configuration.cache_objects?
+          Shop.instance.buy(blueprint, attributes)
+        else
+          blueprint.make!(attributes)
+        end
       end
     end
 
@@ -72,16 +79,21 @@ module Machinist
 
   private
 
-    def decode_args_to_make(*args)
+    # Parses the arguments to make.
+    #
+    # Yields a blueprint and an attributes hash to the block, which should
+    # construct an object from them. The block may be called multiple times to
+    # construct multiple objects.
+    def decode_args_to_make(*args) #:nodoc:
       shift_arg = lambda {|klass| args.shift if args.first.is_a?(klass) }
       count      = shift_arg[Fixnum]
       name       = shift_arg[Symbol] || :master
       attributes = shift_arg[Hash]   || {}
-      raise ArgumentError unless args.empty?  # FIXME: Meaningful exception.
+      raise ArgumentError.new("Couldn't understand arguments") unless args.empty?
 
       @blueprints ||= {}
       blueprint = @blueprints[name]
-      raise "No blueprint defined" unless blueprint
+      raise NoBlueprintError.new(self, name) unless blueprint
 
       if count.nil?
         yield(blueprint, attributes)

@@ -24,33 +24,27 @@ module Machinist
       restock
     end
 
-    # Make sure this gets called before each test to refill the shop with the
-    # entire set of cached objects.
+    # Restock the shop with all the cached objects we've got.
+    #
+    # This should be called before each test.
     def restock
       @back_room = @warehouse.clone
     end
 
-    # When you request an object from the shop, it looks in the back room to
-    # see if it has any objects that match what you're after.
+    # Buy a (possibly cached) object from the shop.
     #
-    # Objects are kept on shelves, where each shelf holds objects constructed
-    # with a particular blueprint and set of attributes.
-    #
-    # If there's a matching object on the right shelf, it's pulled off the
-    # shelf and sold to you.
-    #
-    # If there's no matching object, a new one is created (on a separate
-    # database connection, so that it will stick around after your transaction
-    # rolls back.)
+    # This is just like constructing an object by calling Blueprint#make!,
+    # but it will return a previously cached object if one is available.
     def buy(blueprint, attributes = {})
+      raise BlueprintCantSaveError.new(blueprint) unless blueprint.respond_to?(:make!)
+
       shelf = @back_room[blueprint, attributes]
       if shelf.empty?
         object = blueprint.outside_transaction { blueprint.make!(attributes) }
-        # Put the object in the warehouse, so we can restock the shop with it later.
-        @warehouse[blueprint, attributes] << blueprint.serialize(object)
+        @warehouse[blueprint, attributes] << blueprint.box(object)
         object
       else
-        blueprint.instantiate(shelf.shift)
+        blueprint.unbox(shelf.shift)
       end
     end
 

@@ -2,24 +2,29 @@
 
 *Fixtures aren't fun. Machinist is.*
 
-And now, Machinist 2 gives you the convenience of Machinist, with the
-performance of fixtures.
+Machinist 2 is **still in beta**! Unless you really know what you're doing,
+[you probably want Machinist
+1](http://github.com/notahat/machinist/tree/1.0-maintenance).
 
-See the wiki for [upgrade instructions and info on what's
-new](http://wiki.github.com/notahat/machinist/machinist-2) in Machinist 2.
+- [Home page](http://github.com/notahat/machinist)
+- [What's new in Machinist 2](http://wiki.github.com/notahat/machinist/machinist-2)
+- [Installation](http://wiki.github.com/notahat/machinist/installation)
+- [Documentation](http://wiki.github.com/notahat/machinist/getting-started)
+- [Google group](http://groups.google.com/group/machinist-users)
+- [Bug tracker](http://github.com/notahat/machinist/issues)
 
 
 # Introduction
 
-Machinist makes it easy to create test data within your tests. It generates
-data for the fields you don't care about, and constructs any necessary
-associated objects, leaving you to specify only the fields you *do* care about
-in your tests. For example:
+Machinist makes it easy to create objects within your tests. It generates data
+for the attributes you don't care about, and constructs any necessary
+associated objects, leaving you to specify only the attributes you *do* care
+about in your tests. For example:
 
     describe Comment do
       it "should not include spam in the without_spam scope" do
-        # This will make a Comment, a Post, and a User (the author of
-        # the Post), and generate values for all their attributes:
+        # This will make a Comment, a Post, and a User (the author of the
+        # Post), generate values for all their attributes, and save them:
         spam = Comment.make!(:spam => true)
 
         Comment.without_spam.should_not include(spam)
@@ -46,61 +51,10 @@ You tell Machinist how to do this with blueprints:
       body  { "Lorem ipsum..." }
     end
 
+Check out the
+[documentation](http://wiki.github.com/notahat/machinist/getting-started) for
+more info.
 
-# Installation
-
-So far the generators only work with Rails 3 and RSpec. This will be fixed soon.
-
-## Rails 3
-
-Edit your app's `Gemfile` and, inside the `group :test` section, add:
-
-    gem 'machinist', '2.0.0.head', :git => 'git://github.com/notahat/machinist.git', :branch => 'machinist2'
-
-Then run:
-
-    bundle install
-    rake machinist:install
-
-If you want Machinist to automatically add a blueprint to your blueprints file
-whenever you generate a model, add the following to your
-`config/application.rb` in the `config.generators` section:
-
-    g.fixture_replacement :machinist
-
-
-# Documentation
-
-Still to come!
-
-- Caching
-- Serial Numbers
-- Accessing Other Attributes
-- Associations
-- make vs make!
-
-
-# In The Works
-
-## Not Done Yet
-
-- No `make` method on associations
-- No support for ORMs other than ActiveRecord
-
-## In The Planning Stage
-
-- Support for constructing (and caching) complete graphs of objects in one hit
-- Easy support for different construction strategies, e.g. generating all the
-  attributes and passing them to new as a hash
-
-
-# Community
-
-You can always find the [latest version on GitHub](http://github.com/notahat/machinist/tree/machinist2).
-
-If you have questions, check out the [Google Group](http://groups.google.com/group/machinist-users).
-
-File bug reports and feature requests in the [issue tracker](http://github.com/notahat/machinist/issues).
 
 ## Contributors
 
@@ -110,17 +64,20 @@ Other contributors include:
 
 [Marcos Arias](http://github.com/yizzreel),
 [Jack Dempsey](http://github.com/jackdempsey),
+[Jeremy Durham](http://github.com/jeremydurham),
 [Clinton Forbes](http://github.com/clinton),
 [Perryn Fowler](http://github.com/perryn),
 [Niels Ganser](http://github.com/Nielsomat),
 [Jeremy Grant](http://github.com/jeremygrant),
 [Jon Guymon](http://github.com/gnarg),
 [James Healy](http://github.com/yob),
+[Ben Hoskings](http://github.com/benhoskings),
 [Evan David Light](http://github.com/elight),
 [Chris Lloyd](http://github.com/chrislloyd),
 [Adam Meehan](http://github.com/adzap),
 [Kyle Neath](http://github.com/kneath),
 [Lawrence Pit](http://github.com/lawrencepit),
+[Xavier Shay](http://github.com/xaviershay),
 [T.J. Sheehy](http://github.com/tjsheehy),
 [Roland Swingler](http://github.com/knaveofdiamonds),
 [Gareth Townsend](http://github.com/quamen),
