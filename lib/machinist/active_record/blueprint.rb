@@ -21,9 +21,12 @@ module Machinist::ActiveRecord
     # Execute a block on a separate database connection, so that any database
     # operations happen outside any open transactions.
     def outside_transaction
+      return yield if Thread.current[:machinist_outside_transaction]
+
       # ActiveRecord manages connections per-thread, so the only way to
       # convince it to open another connection is to start another thread.
       thread = Thread.new do
+        Thread.current[:machinist_outside_transaction] = true
         begin
           yield
         ensure
